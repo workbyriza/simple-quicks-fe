@@ -1,6 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
-import { MagnifyingGlassIcon, ArrowLeftIcon } from '@heroicons/react/24/solid'
+import { MagnifyingGlassIcon, ArrowLeftIcon, CalendarIcon, PencilIcon } from '@heroicons/react/24/solid'
+import DatePicker from "react-datepicker";
+
+import "react-datepicker/dist/react-datepicker.css";
 
 function App() {
   const [count, setCount] = useState(0)
@@ -11,7 +14,26 @@ function App() {
   const [activeChat, setActiveChat] = useState(null);
   const [selectedChat, setSelectedChat] = useState(null);
   const [activeOptions, setActiveOptions] = useState(null);
+  const [showTaskDropdown, setShowTaskDropdown] = useState(false);
+  const [isTaskLoading, setIsTaskLoading] = useState(true);
+  const [activeTaskOption, setActiveTaskOption] = useState(null);
 
+  const [checkedTasks, setCheckedTasks] = useState(() => {
+    const saved = localStorage.getItem("checkedTasks");
+    return saved ? JSON.parse(saved) : [];
+  });
+  
+  useEffect(() => {
+    localStorage.setItem("checkedTasks", JSON.stringify(checkedTasks));
+  }, [checkedTasks]);
+
+  const toggleCheck = (taskId) => {
+    setCheckedTasks(prev =>
+      prev.includes(taskId)
+        ? prev.filter(id => id !== taskId)
+        : [...prev, taskId]
+    );
+  };  
 
   const handleMenuClick = (menu) => {
     if (selectedMenu === menu) {
@@ -86,7 +108,6 @@ function App() {
     const messages = chatMessages[chatId];
     if (!messages || messages.length === 0) return "";
   
-    // Filter pesan yang bukan dari "You"
     const nonYouMessages = messages.filter(msg => msg.from !== "You");
     if (nonYouMessages.length === 0) return ""; // Kalau semua pesan dari You
   
@@ -99,10 +120,43 @@ function App() {
   
     return words.slice(0, 20).join(" ") + "...";
   };
-  
-  
 
+  useEffect(() => {
+    if (selectedMenu === "task") {
+      setIsTaskLoading(true);
+      const timer = setTimeout(() => {
+        setIsTaskLoading(false);
+      }, 2000);
+  
+      return () => clearTimeout(timer);
+    }
+  }, [selectedMenu]);
 
+  const tasks = [
+    {
+      id:1,
+      title: "Cross-reference with Jeanne for Case #192813",
+      daysLeft: 2,
+      dueDate: "2021-06-12",
+      createdAt: "12/06/2021",
+      description: "No Description"
+    },
+    {
+      id:2,
+      title: "Contact Andrew for Online meeting",
+      daysLeft:0,
+    },
+    {
+      id:3,
+      title: "Check and Revise Homework from Andre Gonzales",
+      daysLeft:0,
+      dueDate:"2021-06-11",
+      createdAt : "11/06/2021",
+     
+      description : "Homeworks needed to be checked are as follow : Clients profile"
+    }
+  ];
+  
   return (
     <>
       <div className="w-screen min-h-screen flex items-center justify-center bg-100">
@@ -113,18 +167,11 @@ function App() {
 
         {isOpen && (
             <div className="absolute bottom-4 right-[80px] flex gap-4 items-end">
-             
-              {/* <div className="flex flex-col items-center">
-              <span className="text-sm mt-1">Task</span>
-                <img src="/task.png" alt="Task" className="w-12 h-12" />
-              </div>
-            
-               <div className="flex flex-col items-center">
-              <span className="text-sm mt-1">Inbox</span>
-                <img src="/inbox.png" alt="Inbox" className="w-12 h-12" />    
-              </div> */}
               {/* Task */}
-              <div className="flex flex-col items-center cursor-pointer">
+              <div
+                className="flex flex-col items-center cursor-pointer"
+                onClick={() => handleMenuClick("task")}
+              >
                 <span className="text-sm mt-1">Task</span>
                 <img src="/task.png" alt="Task" className="w-12 h-12" />
               </div>
@@ -148,7 +195,7 @@ function App() {
             className="w-[58px] h-[58px] absolute bottom-4 right-4 cursor-pointer transition-transform hover:scale-105"
           />
 
-         {/* MODAL */}
+         {/* MODAL INBOX */}
          {selectedMenu === "inbox" && (
           <div className="absolute bottom-[80px] right-4 bg-white text-black p-6 rounded-xl shadow-xl w-[450px] h-[450px] flex flex-col">
             
@@ -215,8 +262,6 @@ function App() {
                   </div>
                 );
               })}
-
-
               </div>
                {/* Input message section */}
                 <div className="mt-4 flex items-center gap-2">
@@ -275,9 +320,125 @@ function App() {
           </div>
         )}
 
+        {/* MODAL TASK */}
+        {selectedMenu === "task" && (
+          <div className="absolute bottom-[80px] right-4 bg-white text-black p-6 rounded-xl shadow-xl w-[450px] h-[450px] flex flex-col space-y-4">
+            <div className="flex justify-between items-center">
+              {/* Dropdown My Task */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowTaskDropdown(!showTaskDropdown)}
+                  className="ml-2 bg-white border border-gray-300 text-sm px-4 py-1.5 rounded-md shadow-sm hover:bg-gray-100 flex items-center gap-2"
+                >
+                  My Task
+                  <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {showTaskDropdown && (
+                  <div className="absolute mt-2 w-48 bg-white border rounded shadow z-10">
+                    <button className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 bg-white">
+                      Personal Errands
+                    </button>
+                    <button className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 bg-white">
+                      Urgent To-Do
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* New Task Button */}
+              <button className="bg-blue-500 text-white text-sm px-4 py-1.5 rounded-md hover:bg-blue-600 transition">
+                New Task
+              </button>
+            </div>
+
+            <div className="flex-1 flex flex-col overflow-hidden">
+              {isTaskLoading ? (
+                <div className="flex flex-1 flex-col items-center justify-center space-y-2">
+                  <div className="w-10 h-10 border-4 border-gray-300 border-t-gray-500 rounded-full animate-spin"></div>
+                  <p className="text-md font-semibold text-black-500 animate-pulse">Loading Task List...</p>
+                </div>
+              ) : (
+                <>
+                  {/* Task List */}
+                  <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+                    {tasks.map((task, index) => {
+                      const isOverdue = new Date(task.dueDate) < new Date();
+                      return (
+                        <div key={index} className="border-b pb-2">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <input
+                              type="checkbox"
+                              className="form-checkbox"
+                              checked={checkedTasks.includes(task.id)}
+                              onChange={() => toggleCheck(task.id)}/>
+                              <span className={`font-medium ${checkedTasks.includes(task.id) ? 'line-through text-gray-400' : ''}`}>
+                                {task.title}
+                              </span>
+                            </div>
+
+                            {task.daysLeft !== 0 && (
+                              <div className={`text-sm ${isOverdue ? 'text-red-500' : 'text-gray-500'}`}>
+                                {`${task.daysLeft} Day Left`}
+                              </div>
+                            )}
+
+                            <div className="text-xs text-gray-400">{task.createdAt}</div>
+                              <div className="relative">
+                                <button
+                                  className="text-gray-500 hover:text-gray-700 bg-white"
+                                  onClick={() =>
+                                    setActiveTaskOption(activeTaskOption === index ? null : index)
+                                  }
+                                >
+                                  ⋯
+                                </button>
+
+                                {activeTaskOption === index && (
+                                  <div className="absolute right-0 mt-2 w-24 bg-white border rounded shadow z-50">
+                                    <button
+                                      className="w-full text-left text-sm text-red-500 hover:bg-red-100 px-2 py-1 bg-white"
+                                      onClick={() => handleDelete(task.id)} // misalnya ini buat delete
+                                    >
+                                      Delete
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          {task.description && task.description.trim() !== "" && (
+                            <div className="mt-2 space-y-1 text-sm text-black-500">
+                              <div className="flex items-center">
+                                <DatePicker
+                                  selected={new Date(task.dueDate)}
+                                  onChange={(date) => handleDateChange(date, task.id)}
+                                  customInput={
+                                    <button className="ml-8 flex items-center gap-2 px-3 py-1 border border-gray-300 rounded-md bg-white text-sm text-gray-600 hover:bg-gray-100">
+                                      <CalendarIcon className="w-4 h-4 text-gray-400" />
+                                      <span>{new Date(task.dueDate).toLocaleDateString("en-GB")}</span>
+                                    </button>
+                                  }
+                                />
+                              </div>
+                              <div className="flex items-center gap-2 ml-6">
+                                <PencilIcon className="w-4 h-4 text-gray-400" />
+                                <span>{task.description}</span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        )}
         </div>
       </div>
-
     </>
   )
 }
