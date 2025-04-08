@@ -1,12 +1,33 @@
-# React + Vite
+# 🧩 Quicks — Frontend Challenge (Simpul Technologies)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is a frontend implementation of **Quicks**, a popup UI with two alternating tools: **Messaging** and **To Do List**, based on the design provided in the [Figma](https://bit.ly/simpul-front-end-challenge-quicks) by Simpul Technologies.
 
-Currently, two official plugins are available:
+Built using **React** and **Tailwind CSS**. This project simulates a real-world frontend using dummy API data to mimic backend behavior.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Demo
 
-## Expanding the ESLint configuration
+Live demo: [https://simplequicksbyriza.netlify.app/](https://simplequicksbyriza.netlify.app/)
 
-If you are developing a production application, we recommend using TypeScript and enable type-aware lint rules. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## 🛠 Tech Stack
+
+- React
+- Tailwind CSS
+- React Icons / Lucide React
+- React Date Picker
+- Dummy API (e.g. JSONPlaceholder)
+
+---
+
+## 📦 How to Run Locally
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/workbyriza/simple-quicks-fe
+cd simple-quicks-fe
+npm install
+npm run dev
+http://localhost:5173
+
